@@ -22,11 +22,11 @@ export function playSong (connection: Discord.VoiceConnection, songLink: string,
           `
                               ***Reproduciendo...***
                               ${results[0].title}
-                              
+
                               De: **${results[0].channelTitle}**.
-                              
+
                               Descripción: ${results[0].description}.
-                              
+
                               ${results[0].link}
                               `
         )

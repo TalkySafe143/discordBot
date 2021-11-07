@@ -1,4 +1,4 @@
-import  Discord from "discord.js";
+import * as Discord from "discord.js";
 import config from "./config.json";
 const client = new Discord.Client();
 import * as myPlayer from './components/player';
@@ -15,7 +15,7 @@ client.on("ready", () => {
 });
 
 client.on("message", async (msg) => {
-    
+
   if (!msg.content.startsWith(config.PREFIX)) return;
 
   const message = msg.content.split(" ");
@@ -60,7 +60,7 @@ client.on("message", async (msg) => {
                         `
                                             ***¡AÑADIDO A LA COLA!***
                                             ${results.results[0].title}
-                                            
+
                                             De: **${results.results[0].channelTitle}**.
                                             `
                     )
@@ -97,9 +97,9 @@ client.on("message", async (msg) => {
                 .setDescription(
                     `
                             En este mensaje te voy a indicar todos los comandos que tengo disponible con sus funcionalidades. ***Si quieres fija este mensaje***
-            
+
                             *Todos los comandos van con el sufijo: '$'* Ejemplo: $play Esclava Remix
-            
+
                             > *play <NOMBRE DE LA CANCION>* - Permite reproducir canciones por medio de Youtube.
                         `
                   )

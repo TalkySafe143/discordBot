@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "typescript index.ts"
+    "build": "npx typescript index.ts"
   },
   "keywords": [],
   "author": "Sebastian Galindo",
