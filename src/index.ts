@@ -1,22 +1,22 @@
-const assert = require('node:assert')
-const config = require('./config');
-const fs = require('node:fs');
-const path = require('node:path');
-import {
+import fs from 'node:fs';
+import { configObject as config } from './config';
+import path from 'node:path';
+ import {
     Client,
     Events,
     Collection,
-    IntentsBitField,
-    ChatInputCommandInteraction,
+    ChatInputCommandInteraction, AutocompleteInteraction
 } from 'discord.js'
 
-const debug = require('debug')('server:info');
+import { debug as debugConfig } from 'debug';
+import assert from "node:assert";
+const debug = debugConfig('server:info');
 
 class ClientCommands extends Client {
     public commands!: Collection<any, any>;
 }
 
-const client = new ClientCommands({ intents: IntentsBitField.resolve(0) });
+export const client = new ClientCommands({ intents: ["GuildVoiceStates", "Guilds"] });
 
 client.commands = new Collection();
 
@@ -39,36 +39,55 @@ client.once(Events.ClientReady, c => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
-    //console.log(interaction);
+    if (interaction.isAutocomplete()) {
+        const command = (interaction.client as ClientCommands)
+            .commands.get(
+                (interaction as ChatInputCommandInteraction).commandName
+            );
 
-    const command = (interaction.client as ClientCommands)
-                    .commands.get(
-                        (interaction as ChatInputCommandInteraction).commandName
-                    );
+        if (!command) {
+            debug(`No matching command ${(interaction as ChatInputCommandInteraction).commandName}`);
+            return;
+        }
 
-    if (!command) {
-        debug(`No matching command ${(interaction as ChatInputCommandInteraction).commandName}`);
-        return;
+        assert('autocompleteRun' in command);
+
+        try {
+            await command.autocompleteRun((interaction as AutocompleteInteraction));
+        } catch (e) {
+            console.log(e);
+        }
     }
 
-    try {
-        await command.execute((interaction as ChatInputCommandInteraction));
-    } catch (err) {
-        debug(err);
-        (
-            (interaction as ChatInputCommandInteraction).replied
-            ||
-            (interaction as ChatInputCommandInteraction).deferred
-        ) ?
-            await (interaction as ChatInputCommandInteraction).followUp({
-                content: 'Hubo un error mientras se ejecutaba el comando!',
-                ephemeral: true
-            }) :
-            await (interaction as ChatInputCommandInteraction).reply({
-                content: 'Hubo un error mientras se ejecutaba el comando!',
-                ephemeral: true
-            });
+    if (interaction.isChatInputCommand()) {
+        const command = (interaction.client as ClientCommands)
+            .commands.get(
+                (interaction as ChatInputCommandInteraction).commandName
+            );
+
+        if (!command) {
+            debug(`No matching command ${(interaction as ChatInputCommandInteraction).commandName}`);
+            return;
+        }
+
+        try {
+            await command.execute((interaction as ChatInputCommandInteraction));
+        } catch (err) {
+            debug(err);
+            (
+                (interaction as ChatInputCommandInteraction).replied
+                ||
+                (interaction as ChatInputCommandInteraction).deferred
+            ) ?
+                await (interaction as ChatInputCommandInteraction).followUp({
+                    content: 'Hubo un error mientras se ejecutaba el comando!',
+                    ephemeral: true
+                }) :
+                await (interaction as ChatInputCommandInteraction).reply({
+                    content: 'Hubo un error mientras se ejecutaba el comando!',
+                    ephemeral: true
+                });
+        }
     }
 })
 

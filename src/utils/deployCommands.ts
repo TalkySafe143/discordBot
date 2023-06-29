@@ -1,9 +1,10 @@
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v10');
-const config = require('../config');
-const fs = require('node:fs');
-const path = require('node:path');
-const debug = require('debug')('deploy:commands');
+import { REST, Routes } from 'discord.js'
+import {configObject as config} from '../config';
+import fs from 'node:fs';
+import path from 'node:path';
+
+import { debug as debugConfig } from 'debug'
+const debug = debugConfig('deploy:commands');
 
 const commands = [];
 
@@ -27,7 +28,7 @@ const rest = new REST().setToken(config.token);
     try {
         debug(`Desplegando ${commands.length} application (/) commands`)
 
-        const data = await rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId),
+        const data : any = await rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId),
             {
                 body: commands
             });
