@@ -32,7 +32,7 @@ async function autocompleteRun(interaction: AutocompleteInteraction) {
 
     return interaction.respond(
         results.tracks.slice(0, 10).map(track => ({
-            name: track.title + ' 🔊',
+            name: track.title + '  -  ' + track.author + ' 🔊',
             value: track.url
         }))
     )

@@ -46,7 +46,7 @@ client.once(Events.ClientReady, c => {
         assert(queue.metadata instanceof ChatInputCommandInteraction)
 
         const responseEmbed = new EmbedBuilder()
-            .setColor(0x0099FF)
+            .setColor(0x00BE00)
             .setTitle(track.raw.title)
             .setURL(track.url)
             .setAuthor({ name: 'Bosito de Galindo', iconURL: ((client.user as ClientUser).avatarURL() as string), url: 'https://talkysafe143.github.io/' })
