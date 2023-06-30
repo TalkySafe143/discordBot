@@ -5,11 +5,12 @@ import path from 'node:path';
     Client,
     Events,
     Collection,
-    ChatInputCommandInteraction, AutocompleteInteraction
-} from 'discord.js'
+    ChatInputCommandInteraction, AutocompleteInteraction, EmbedBuilder, ClientUser, TextChannel
+ } from 'discord.js'
 
 import { debug as debugConfig } from 'debug';
 import assert from "node:assert";
+import {Player} from "discord-player";
 const debug = debugConfig('server:info');
 
 class ClientCommands extends Client {
@@ -30,23 +31,43 @@ for (const file of commandFiles) {
     if ('data' in command && 'execute' in command) {
         client.commands.set(command.data.name, command);
     } else {
-        debug(`[WARNING] The command at ${filePath} is missing parameters execute and data`,  );
+        debug(`[WARNING] The command at ${filePath} is missing parameters execute and data`,);
     }
 }
 
 client.once(Events.ClientReady, c => {
     debug(`Ready! Logged in as ${c.user.tag}`)
+    const player = new Player(c);
+    player.extractors.loadDefault()
+        .then(res => debug('Extractores del player listos.'));
+
+    player.events.on('playerStart', async (queue, track) => {
+        console.log('Reproduciendo ' + track.raw.title);
+        assert(queue.metadata instanceof ChatInputCommandInteraction)
+
+        const responseEmbed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle(track.raw.title)
+            .setURL(track.url)
+            .setAuthor({ name: 'Bosito de Galindo', iconURL: ((client.user as ClientUser).avatarURL() as string), url: 'https://talkysafe143.github.io/' })
+            .setDescription(`Se esta reproduciendo: **${track.raw.title}**`)
+            .setThumbnail(track.raw.source === 'spotify' ? 'https://i.imgur.com/Et5AJpz.png' : 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png')
+            .setImage(track.thumbnail)
+            .setTimestamp();
+
+        await (queue.metadata.channel as TextChannel).send({ embeds: [ responseEmbed ] });
+    })
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.isAutocomplete()) {
         const command = (interaction.client as ClientCommands)
             .commands.get(
-                (interaction as ChatInputCommandInteraction).commandName
+                (interaction as AutocompleteInteraction).commandName
             );
 
         if (!command) {
-            debug(`No matching command ${(interaction as ChatInputCommandInteraction).commandName}`);
+            debug(`No matching command ${(interaction as AutocompleteInteraction).commandName}`);
             return;
         }
 
