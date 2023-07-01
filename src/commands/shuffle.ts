@@ -14,8 +14,16 @@ async function execute(interaction: ChatInputCommandInteraction) {
         const queue = player.queues.cache.at(0);
         if (!(queue instanceof GuildQueue)) throw 'No hay ninguna cola!';
 
+        if (queue.tracks.size === 1) throw 'Solo hay una cancion en la lista.'
+
         for (let i = 0; i < queue.tracks.size; i++) {
-            queue.node.swap(i, Math.round((Math.random()*100) % queue.tracks.size));
+            let randNumber = -1;
+
+            while (randNumber < 0) {
+                randNumber = Math.round((Math.random()*100) % (queue?.tracks.size)) - 1;
+            }
+
+            queue?.node.swap(i, randNumber);
         }
 
         responseEmbed

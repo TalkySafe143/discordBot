@@ -10,10 +10,19 @@ import path from 'node:path';
 
 import { debug as debugConfig } from 'debug';
 import assert from "node:assert";
-import {Player} from "discord-player";
+import {Player, useMainPlayer} from "discord-player";
 const debug = debugConfig('server:info');
 
-class ClientCommands extends Client {
+const images = {
+    'soundcloud': 'https://cdn-icons-png.flaticon.com/512/145/145809.png',
+    "youtube" : 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png',
+    "spotify" : 'https://i.imgur.com/Et5AJpz.png',
+    "apple_music" : 'https://cdn-icons-png.flaticon.com/512/7566/7566380.png',
+    "arbitrary" : 'https://cdn-icons-png.flaticon.com/512/2402/2402461.png'
+}
+
+
+export class ClientCommands extends Client {
     public commands!: Collection<any, any>;
 }
 
@@ -22,7 +31,7 @@ export const client = new ClientCommands({ intents: ["GuildVoiceStates", "Guilds
 client.commands = new Collection();
 
 const commandsPaths = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPaths).filter((file : string) => file.endsWith('.ts'));
+const commandFiles = fs.readdirSync(commandsPaths).filter((file : string) => file.endsWith('.ts') || file.endsWith('.js'));
 
 for (const file of commandFiles) {
     const filePath = path.join(commandsPaths, file);
@@ -35,20 +44,15 @@ for (const file of commandFiles) {
     }
 }
 
+//require('events');
 client.once(Events.ClientReady, c => {
-
-    const images = {
-        'soundcloud': 'https://cdn-icons-png.flaticon.com/512/145/145809.png',
-        "youtube" : 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png',
-        "spotify" : 'https://i.imgur.com/Et5AJpz.png',
-        "apple_music" : 'https://cdn-icons-png.flaticon.com/512/7566/7566380.png',
-        "arbitrary" : 'https://cdn-icons-png.flaticon.com/512/2402/2402461.png'
-    }
 
     debug(`Ready! Logged in as ${c.user.tag}`)
     const player = new Player(c);
     player.extractors.loadDefault()
         .then(res => debug('Extractores del player listos.'));
+
+    // Player events
 
     player.events.on('playerStart', async (queue, track) => {
         console.log('Reproduciendo ' + track.raw.title);
@@ -68,8 +72,8 @@ client.once(Events.ClientReady, c => {
 
         await (queue.metadata.channel as TextChannel).send({ embeds: [ responseEmbed ] });
     });
-
 });
+
 
 client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.isAutocomplete()) {
@@ -106,7 +110,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         try {
             await command.execute((interaction as ChatInputCommandInteraction));
         } catch (err) {
-            debug(err);
+            console.log(err);
             (
                 (interaction as ChatInputCommandInteraction).replied
                 ||
