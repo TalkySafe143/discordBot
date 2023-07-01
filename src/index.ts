@@ -56,6 +56,10 @@ client.once(Events.ClientReady, c => {
             .setTimestamp();
 
         await (queue.metadata.channel as TextChannel).send({ embeds: [ responseEmbed ] });
+    });
+
+    player.events.on('playerSkip', (queue, track) => {
+        queue.node.skip();
     })
 });
 

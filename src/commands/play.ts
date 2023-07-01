@@ -23,6 +23,17 @@ const data = new SlashCommandBuilder()
 async function autocompleteRun(interaction: AutocompleteInteraction) {
     const player = useMainPlayer();
     const query = interaction.options.getString('query', true);
+
+    if (query.includes('https')) {
+        return interaction.respond([
+            {
+                name: 'Este es un link!',
+                value: query
+            }
+            ]
+        )
+    }
+
     let results : SearchResult;
     if (player instanceof Player) {
         results = await player.search(query === ""? " " : query);
