@@ -36,6 +36,15 @@ for (const file of commandFiles) {
 }
 
 client.once(Events.ClientReady, c => {
+
+    const images = {
+        'soundcloud': 'https://cdn-icons-png.flaticon.com/512/145/145809.png',
+        "youtube" : 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png',
+        "spotify" : 'https://i.imgur.com/Et5AJpz.png',
+        "apple_music" : 'https://cdn-icons-png.flaticon.com/512/7566/7566380.png',
+        "arbitrary" : 'https://cdn-icons-png.flaticon.com/512/2402/2402461.png'
+    }
+
     debug(`Ready! Logged in as ${c.user.tag}`)
     const player = new Player(c);
     player.extractors.loadDefault()
@@ -45,22 +54,21 @@ client.once(Events.ClientReady, c => {
         console.log('Reproduciendo ' + track.raw.title);
         assert(queue.metadata instanceof ChatInputCommandInteraction)
 
+        assert(track.raw.source);
+
         const responseEmbed = new EmbedBuilder()
             .setColor(0x00BE00)
             .setTitle(track.raw.title)
             .setURL(track.url)
             .setAuthor({ name: 'Bosito de Galindo', iconURL: ((client.user as ClientUser).avatarURL() as string), url: 'https://talkysafe143.github.io/' })
             .setDescription(`Se esta reproduciendo: **${track.raw.title}**`)
-            .setThumbnail(track.raw.source === 'spotify' ? 'https://i.imgur.com/Et5AJpz.png' : 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png')
+            .setThumbnail(images[track.raw.source])
             .setImage(track.thumbnail)
             .setTimestamp();
 
         await (queue.metadata.channel as TextChannel).send({ embeds: [ responseEmbed ] });
     });
 
-    player.events.on('playerSkip', (queue, track) => {
-        queue.node.skip();
-    })
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {

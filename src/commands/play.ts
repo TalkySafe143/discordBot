@@ -8,6 +8,15 @@ import {
 } from "discord.js";
 import {client} from "../index";
 import {Player, SearchResult, useMainPlayer} from 'discord-player'
+import assert from "node:assert";
+
+const images = {
+    'soundcloud': 'https://cdn-icons-png.flaticon.com/512/145/145809.png',
+    "youtube" : 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png',
+    "spotify" : 'https://i.imgur.com/Et5AJpz.png',
+    "apple_music" : 'https://cdn-icons-png.flaticon.com/512/7566/7566380.png',
+    "arbitrary" : 'https://cdn-icons-png.flaticon.com/512/2402/2402461.png'
+}
 
 const data = new SlashCommandBuilder()
     .setName('play')
@@ -76,13 +85,15 @@ async function execute(interaction: ChatInputCommandInteraction) {
 
         const response = await player.play(channel, searchResult, { nodeOptions: { metadata: interaction } });
 
+        assert(response.track.raw.source);
+
         responseEmbed
             .setColor(0x0099FF)
             .setTitle(response.track.raw.title)
             .setURL(response.track.url)
             .setAuthor({ name: 'Botsito de Galindo', url: 'https://talkysafe143.github.io/', iconURL: ((client.user as ClientUser).avatarURL() as string) })
             .setDescription(`Agregado a la cola: **${response.track.title}**`)
-            .setThumbnail(response.track.raw.source === 'spotify' ? 'https://i.imgur.com/Et5AJpz.png' : 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png')
+            .setThumbnail(images[response.track.raw.source])
             .setImage(response.track.thumbnail)
             .setTimestamp();
 
