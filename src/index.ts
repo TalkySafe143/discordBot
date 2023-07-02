@@ -71,6 +71,10 @@ client.once(Events.ClientReady, c => {
 
         await (queue.metadata.channel as TextChannel).send({ embeds: [ responseEmbed ] });
     });
+
+    player.events.on("debug", (queue, message) => {
+        debug(message)
+    })
 });
 
 
