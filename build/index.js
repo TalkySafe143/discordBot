@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.client = void 0;
+exports.client = exports.ClientCommands = void 0;
 const node_fs_1 = __importDefault(require("node:fs"));
 const config_1 = require("./config");
 const node_path_1 = __importDefault(require("node:path"));
@@ -12,8 +12,16 @@ const debug_1 = require("debug");
 const node_assert_1 = __importDefault(require("node:assert"));
 const discord_player_1 = require("discord-player");
 const debug = (0, debug_1.debug)('server:info');
+const images = {
+    'soundcloud': 'https://cdn-icons-png.flaticon.com/512/145/145809.png',
+    "youtube": 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png',
+    "spotify": 'https://i.imgur.com/Et5AJpz.png',
+    "apple_music": 'https://cdn-icons-png.flaticon.com/512/7566/7566380.png',
+    "arbitrary": 'https://cdn-icons-png.flaticon.com/512/2402/2402461.png'
+};
 class ClientCommands extends discord_js_1.Client {
 }
+exports.ClientCommands = ClientCommands;
 exports.client = new ClientCommands({ intents: ["GuildVoiceStates", "Guilds"] });
 exports.client.commands = new discord_js_1.Collection();
 const commandsPaths = node_path_1.default.join(__dirname, 'commands');
@@ -29,17 +37,11 @@ for (const file of commandFiles) {
     }
 }
 exports.client.once(discord_js_1.Events.ClientReady, c => {
-    const images = {
-        'soundcloud': 'https://cdn-icons-png.flaticon.com/512/145/145809.png',
-        "youtube": 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png',
-        "spotify": 'https://i.imgur.com/Et5AJpz.png',
-        "apple_music": 'https://cdn-icons-png.flaticon.com/512/7566/7566380.png',
-        "arbitrary": 'https://cdn-icons-png.flaticon.com/512/2402/2402461.png'
-    };
     debug(`Ready! Logged in as ${c.user.tag}`);
     const player = new discord_player_1.Player(c);
     player.extractors.loadDefault()
         .then(res => debug('Extractores del player listos.'));
+    // Player events
     player.events.on('playerStart', async (queue, track) => {
         console.log('Reproduciendo ' + track.raw.title);
         (0, node_assert_1.default)(queue.metadata instanceof discord_js_1.ChatInputCommandInteraction);

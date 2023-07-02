@@ -44,7 +44,6 @@ for (const file of commandFiles) {
     }
 }
 
-//require('events');
 client.once(Events.ClientReady, c => {
 
     debug(`Ready! Logged in as ${c.user.tag}`)
