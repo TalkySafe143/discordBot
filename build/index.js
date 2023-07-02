@@ -57,6 +57,9 @@ exports.client.once(discord_js_1.Events.ClientReady, c => {
             .setTimestamp();
         await queue.metadata.channel.send({ embeds: [responseEmbed] });
     });
+    player.events.on("debug", (queue, message) => {
+        debug(message);
+    });
 });
 exports.client.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
     if (interaction.isAutocomplete()) {
